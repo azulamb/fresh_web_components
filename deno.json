@@ -1,0 +1,21 @@
+{
+  "lock": false,
+  "tasks": {
+  },
+  "lint": {
+    "rules": {
+      "tags": [
+        "fresh",
+        "recommended"
+      ]
+    }
+  },
+  "fmt": {
+    "singleQuote": true
+  },
+  "imports": {
+    "$fresh/": "https://deno.land/x/fresh@1.6.1/",
+    "$std/": "https://deno.land/std@0.208.0/",
+    "$emit/": "https://deno.land/x/emit@0.32.0/"
+  }
+}
