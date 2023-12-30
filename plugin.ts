@@ -99,14 +99,11 @@ function sourceSearch(
   bundle: BundleConfig,
   files: string[],
 ) {
-  const targets = [
-    path.join(sourceDir, bundle.entrypoint),
-  ];
-  bundle.components.forEach((component) => {
-    targets.push(path.join(sourceDir, component));
-  });
-  for (const file of files) {
-    if (targets.includes(file)) {
+  if (files.includes(path.join(sourceDir, bundle.entrypoint))) {
+    return true;
+  }
+  for (const component of bundle.components) {
+    if (files.includes(path.join(sourceDir, component))) {
       return true;
     }
   }
@@ -211,7 +208,7 @@ export function freshWebComponents(
       }
     },
     middlewares,
-    buildStart: async (freshConfig: ResolvedFreshConfig) => {
+    buildStart: async (_freshConfig: ResolvedFreshConfig) => {
       // console.log('fresh_web_components: buildStart');
       const config = await prepareBuild(baseConfig.configPath);
       await buildAllFiles(config);
