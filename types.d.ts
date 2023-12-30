@@ -1,21 +1,5 @@
 import type { BundleOptions } from '$emit/mod.ts';
 
-interface WebComponentsPluginConfig {
-  configPath?: string; // Config JSON file path. Default is "web-components/web-components.config.json".
-  generateTypesCode?: GenerateWebComponentsTypesCallback; // Generate types contents callback.
-}
-
-interface WebComponentInfo {
-  name: string; // Component name.
-  type?: string; // Component type. Default is "HTMLElement".
-}
-
-interface ComponentConfig {
-  file: string;
-  list: { name: string; type: string }[];
-  ignore?: boolean; // Ignore when all build.
-}
-
 // JSON config file format.
 interface WebComponentsConfig {
   bundle?: string | {
@@ -32,13 +16,6 @@ interface WebComponentsConfig {
   emitOptions?: BundleOptions;
 }
 
-interface BundleConfig {
-  entrypoint: string;
-  destination: string;
-  components: string[];
-  options: BundleOptions;
-}
-
 // Convert from WebComponentsConfig to WebComponentsFullConfig.
 interface WebComponentsFullConfig {
   bundle: BundleConfig[];
@@ -49,6 +26,33 @@ interface WebComponentsFullConfig {
   destinationDir: string;
   emitOptions: BundleOptions;
 }
+
+// Plugin config.
+interface WebComponentsPluginConfig {
+  configPath?: string; // Config JSON file path. Default is "web-components/web-components.config.json".
+  generateTypesCode?: GenerateWebComponentsTypesCallback; // Generate types contents callback.
+}
+
+// Sub type.
+
+interface WebComponentInfo {
+  name: string; // Component name.
+  type?: string; // Component type. Default is "HTMLElement".
+}
+
+interface ComponentConfig {
+  file: string;
+  list: { name: string; type: string }[];
+  ignore?: boolean; // Ignore when all build.
+}
+
+interface BundleConfig {
+  entrypoint: string;
+  destination: string;
+  components: string[];
+  options: BundleOptions;
+}
+
 
 type GenerateWebComponentsTypesCallback = (
   config: WebComponentsFullConfig,
