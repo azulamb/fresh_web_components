@@ -10,6 +10,7 @@ import { parseWebComponentsConfig } from './libs/config.ts';
 import { template } from './libs/template.ts';
 import { watcher } from './libs/watcher.ts';
 import type {
+  BundleConfig,
   GenerateWebComponentsTypesCallback,
   WebComponentsFullConfig,
   WebComponentsPluginConfig,
@@ -66,6 +67,49 @@ async function buildAllFiles(config: WebComponentsFullConfig) {
   for (const bundle of config.bundle) {
     await build(config.sourceDir, config.staticDir, bundle);
   }
+  if (config.destinationDir) {
+    try {
+      await Deno.mkdir(config.destinationDir);
+    } catch (error) {
+      if (!(error instanceof Deno.errors.AlreadyExists)) {
+        throw error;
+      }
+    }
+  }
+  for (const component of config.components) {
+    if (component.ignore) {
+      continue;
+    }
+    await build(
+      config.sourceDir,
+      config.destinationDir,
+      {
+        entrypoint: component.file,
+        destination: component.file.replace(/.ts$/, '.js'),
+        components: [component.file],
+      },
+    );
+  }
+}
+
+function sourceSearch(
+  sourceDir: string,
+  bundle: BundleConfig,
+  files: string[],
+) {
+  console.log(sourceDir, bundle, files);
+  const targets = [
+    path.join(sourceDir, bundle.entrypoint),
+  ];
+  bundle.components.forEach((component) => {
+    targets.push(path.join(sourceDir, component));
+  });
+  for (const file of files) {
+    if (targets.includes(file)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function buildFromChangeFiles(
@@ -77,8 +121,11 @@ function buildFromChangeFiles(
     return files.indexOf(file) === index &&
       (file.endsWith('.ts') || file.endsWith('.json'));
   });
+  console.log(files);
   for (const bundle of config.bundle) {
-    if (files.includes(bundle.entrypoint)) {
+    console.log(bundle.entrypoint);
+    config.sourceDir;
+    if (sourceSearch(config.sourceDir, bundle, files)) {
       build(config.sourceDir, config.staticDir, bundle).then((code) => {
         cache.set(bundle.destination, { content: code });
       });
@@ -116,6 +163,7 @@ export function freshWebComponents(
 
         const build = buildFileFunc(config, pathname);
 
+        console.log(build);
         if (!build) {
           return context.next();
         }

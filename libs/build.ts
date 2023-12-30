@@ -4,26 +4,24 @@ import type { BundleConfig } from '../types.d.ts';
 
 export const build = (() => {
   let building: null | Promise<string> = null;
-  let buildCount = 0;
 
   async function build(
     sourceDir: string,
     destinationDir: string,
     config: BundleConfig,
   ): Promise<string> {
-    ++buildCount;
-    console.log(`fresh_web_components: build(${buildCount})${new Date()}}`);
-
-    console.log(config);
+    console.log(`fresh_web_components: build(${new Date()})`);
 
     const entrypoint = path.join(sourceDir, config.entrypoint);
 
-    await Deno.writeTextFile(
-      entrypoint,
-      config.components.map((file) => {
-        return `import {} from '${file}';`;
-      }).join('\n'),
-    );
+    if (entrypoint.match(/\.gen\.ts$/)) {
+      await Deno.writeTextFile(
+        entrypoint,
+        config.components.map((file) => {
+          return `import {} from '${file}';`;
+        }).join('\n'),
+      );
+    }
     const { code } = await bundle(entrypoint);
 
     if (config.destination) {
