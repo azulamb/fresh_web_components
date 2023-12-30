@@ -29,6 +29,7 @@ async function prepareBuild(configJSONPath: string) {
         sourceDir: SOURCE_DIR,
         components: [],
         destinationDir: '',
+        emitOptions: {},
       };
 
       // Generate empty config file.
@@ -87,6 +88,7 @@ async function buildAllFiles(config: WebComponentsFullConfig) {
         entrypoint: component.file,
         destination: component.file.replace(/.ts$/, '.js'),
         components: [component.file],
+        options: config.emitOptions,
       },
     );
   }
@@ -97,7 +99,6 @@ function sourceSearch(
   bundle: BundleConfig,
   files: string[],
 ) {
-  console.log(sourceDir, bundle, files);
   const targets = [
     path.join(sourceDir, bundle.entrypoint),
   ];
@@ -121,10 +122,7 @@ function buildFromChangeFiles(
     return files.indexOf(file) === index &&
       (file.endsWith('.ts') || file.endsWith('.json'));
   });
-  console.log(files);
   for (const bundle of config.bundle) {
-    console.log(bundle.entrypoint);
-    config.sourceDir;
     if (sourceSearch(config.sourceDir, bundle, files)) {
       build(config.sourceDir, config.staticDir, bundle).then((code) => {
         cache.set(bundle.destination, { content: code });
@@ -163,7 +161,6 @@ export function freshWebComponents(
 
         const build = buildFileFunc(config, pathname);
 
-        console.log(build);
         if (!build) {
           return context.next();
         }
@@ -199,7 +196,7 @@ export function freshWebComponents(
   return {
     name: 'fresh_web_components',
     configResolved: (freshConfig: ResolvedFreshConfig) => {
-      console.log('fresh_web_components: configResolved');
+      // console.log('fresh_web_components: configResolved');
       if (freshConfig.dev) {
         middlewares.push(middleware);
 
@@ -215,8 +212,7 @@ export function freshWebComponents(
     },
     middlewares,
     buildStart: async (freshConfig: ResolvedFreshConfig) => {
-      console.log('fresh_web_components: buildStart');
-      console.log(freshConfig);
+      // console.log('fresh_web_components: buildStart');
       const config = await prepareBuild(baseConfig.configPath);
       await buildAllFiles(config);
     },

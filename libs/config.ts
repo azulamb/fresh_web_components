@@ -6,6 +6,7 @@ import type {
   WebComponentsConfig,
   WebComponentsFullConfig,
 } from '../types.d.ts';
+import { BundleOptions } from '$emit/mod.ts';
 
 function parseComponents(config: WebComponentsConfig) {
   if (!Array.isArray(config.components)) {
@@ -64,16 +65,23 @@ function createDestination(destination?: string): string {
   return '/' + destination;
 }
 
-function parseBundle(config: WebComponentsConfig): BundleConfig[] {
+function generateBundleConfig(entrypoint: string): BundleConfig {
+  return {
+    entrypoint: entrypoint,
+    destination: entrypoint.replace(/(\.gen)\.ts$/, '.js'),
+    components: ['*'],
+    options: {},
+  };
+}
+
+function parseBundle(
+  config: WebComponentsConfig,
+  options: BundleOptions,
+): BundleConfig[] {
   const bundles: BundleConfig[] = [];
 
   if (typeof config.bundle === 'string') {
-    const entrypoint = createEntrypoint(config.bundle);
-    bundles.push({
-      entrypoint: entrypoint,
-      destination: entrypoint.replace(/(\.gen)\.ts$/, '.js'),
-      components: ['*'],
-    });
+    bundles.push(generateBundleConfig(createEntrypoint(config.bundle)));
   } else if (Array.isArray(config.bundle)) {
     for (const bundle of config.bundle) {
       if (typeof bundle !== 'object') {
@@ -91,24 +99,23 @@ function parseBundle(config: WebComponentsConfig): BundleConfig[] {
           entrypoint: entrypoint,
           destination: destination,
           components: [bundle.components],
+          options: options ? Object.assign({}, options) : {},
         });
       } else if (Array.isArray(bundle.components)) {
         bundles.push({
           entrypoint: entrypoint,
           destination: destination,
           components: bundle.components,
+          options: options
+            ? Object.assign({}, options, bundle.options)
+            : Object.assign({}, bundle.options),
         });
       }
     }
   }
 
   if (bundles.length <= 0) {
-    const entrypoint = createEntrypoint(BASE_NAME + '.gen.ts');
-    bundles.push({
-      entrypoint: entrypoint,
-      destination: entrypoint.replace(/(\.gen)\.ts$/, '.js'),
-      components: ['*'],
-    });
+    bundles.push(generateBundleConfig(createEntrypoint(BASE_NAME + '.gen.ts')));
   }
 
   return bundles;
@@ -174,6 +181,7 @@ export async function parseWebComponentsConfig(
     sourceDir: SOURCE_DIR,
     components: [],
     destinationDir: '',
+    emitOptions: {},
   };
 
   try {
@@ -209,9 +217,15 @@ export async function parseWebComponentsConfig(
     );
   }
 
-  fullConfig.bundle = parseBundle(config).map((bundle) => {
-    return convertBundleComponentsToFileList(bundle, fullConfig);
-  });
+  if (typeof config.emitOptions === 'object') {
+    fullConfig.emitOptions = config.emitOptions;
+  }
+
+  fullConfig.bundle = parseBundle(config, fullConfig.emitOptions).map(
+    (bundle) => {
+      return convertBundleComponentsToFileList(bundle, fullConfig);
+    },
+  );
 
   return fullConfig;
 }

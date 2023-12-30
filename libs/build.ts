@@ -10,7 +10,7 @@ export const build = (() => {
     destinationDir: string,
     config: BundleConfig,
   ): Promise<string> {
-    console.log(`fresh_web_components: build(${new Date()})`);
+    // console.log(`fresh_web_components: build(${new Date()})`);
 
     const entrypoint = path.join(sourceDir, config.entrypoint);
 
@@ -19,7 +19,7 @@ export const build = (() => {
         entrypoint,
         config.components.map((file) => {
           return `import {} from '${file}';`;
-        }).join('\n'),
+        }).join('\n') + '\n',
       );
     }
     const { code } = await bundle(entrypoint);
