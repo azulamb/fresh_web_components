@@ -1,0 +1,40 @@
+{
+  "bundle": [
+    {
+      "entrypoint": "common.gen.ts",
+      "components": [
+        "sample-header",
+        "sample-footer"
+      ]
+    }
+  ],
+  "typesFile": "web-components.d.ts",
+  "staticDir": "static/",
+  "sourceDir": "web-components/",
+  "components": [
+    {
+      "file": "./sample-header.ts",
+      "list": {
+        "name": "sample-header",
+        "type": "SampleHeader"
+      },
+      "ignore": true
+    },
+    {
+      "file": "./sample-footer.ts",
+      "list": {
+        "name": "sample-footer",
+        "type": "SampleFooter"
+      },
+      "ignore": true
+    },
+    {
+      "file": "./sample-component.ts",
+      "list": {
+        "name": "sample-component",
+        "type": "SampleComponent"
+      }
+    }
+  ],
+  "destinationDir": "components/"
+}
