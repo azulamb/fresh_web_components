@@ -53,7 +53,6 @@ interface BundleConfig {
   options: BundleOptions;
 }
 
-
 type GenerateWebComponentsTypesCallback = (
   config: WebComponentsFullConfig,
 ) => string;
