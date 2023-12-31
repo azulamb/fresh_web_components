@@ -76,21 +76,21 @@ async function buildAllFiles(config: WebComponentsFullConfig) {
         throw error;
       }
     }
-  }
-  for (const component of config.components) {
-    if (component.ignore) {
-      continue;
+    for (const component of config.components) {
+      if (component.ignore) {
+        continue;
+      }
+      await build(
+        config.sourceDir,
+        config.destinationDir,
+        {
+          entrypoint: component.file,
+          destination: component.file.replace(/.ts$/, '.js'),
+          components: [component.file],
+          options: config.emitOptions,
+        },
+      );
     }
-    await build(
-      config.sourceDir,
-      config.destinationDir,
-      {
-        entrypoint: component.file,
-        destination: component.file.replace(/.ts$/, '.js'),
-        components: [component.file],
-        options: config.emitOptions,
-      },
-    );
   }
 }
 
