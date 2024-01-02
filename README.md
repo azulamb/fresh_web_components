@@ -135,3 +135,7 @@ export default defineConfig({
 ```
 deno run -A -r https://fresh.deno.dev sample
 ```
+
+## TODO
+
+- Change `emit` to `esbuild` .
